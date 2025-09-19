@@ -36,9 +36,13 @@ for line in line_list:
             hipblaslt_commands = []
             problem_idx += 1
         # Encount gemm problem finish with status "FAIL"
-        if (word_list[0] == "FAIL" and len(word_list) == 1):
+        if ((word_list[0] == "FAIL" and len(word_list) == 1) or (word_list[0] == "FAILED" and len(word_list) <= 4)):
             atol_rtol_list = []
+            cidx = 1
+            print(f"Problem {problem_idx} has #{len(hipblaslt_commands)} gemm need to bench...")
             for hipblaslt_command in hipblaslt_commands:
+                print(f"hipblaslt-bench command#{cidx} in progess!!")
+                cidx = cidx + 1
                 bench_result_output = subprocess.run(hipblaslt_command, shell = True, capture_output = True, text = True)
                 bench_result = bench_result_output.stdout.strip()
                 bench_result_split = bench_result.split("\n")
@@ -55,7 +59,7 @@ for line in line_list:
             with open(bench_result_path, 'a') as file:
                 file.write(f"{SPACE}\n")
                 file.write(f"Problem #{problem_idx} status: FAIL\n")
-                idx = 0
+                idx = 1
                 for hipblaslt_command, atol_rtol in zip(hipblaslt_commands, atol_rtol_list):
                     file.write(f"GEMM #{idx}:\n")
                     file.write(f"    GEMM problem command: {hipblaslt_command}\n")
